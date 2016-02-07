@@ -22,9 +22,7 @@ numTemplates = length(templateFileNames);
 %% Set the values of SSD_THRESH and NCC_THRESH
 SSD_THRESH = 20;
 %% Initialize two output images to the RGB input image
-[rows cols colorDepth]= size(grayImage);
-matched = zeros(rows, cols);
-position = zeros(13,2);
+matched = zeros(
 %% For each template, do the following
 for i=1:numTemplates
     %% Load the RGB template image, into variable T 
@@ -44,7 +42,10 @@ for i=1:numTemplates
     %% Find the best match [row column] using Sum of Square Difference (SSD)
     [SSDrow, SSDcol] = SSD(grayImage, T, SSD_THRESH);
     
-    position(i,:) = [SSDrow + randi(30), SSDcol - randi(30)];
+    position
+    
+    matched = insertText(input,
+    
     % If the best match exists
     % overlay the card name on the best match location on the SSD output image                      
     % Insert the card name on the output images (use small font size, e.g. 6)
@@ -86,7 +87,7 @@ for row=1:rows
     for col=1:cols
         for i=1:m
             for j=1:n
-                sumCurrent = sum(T(i,j) - grayImage(row+i,col+j).^2);
+                sumCurrent = sum(T[i,j] - grayImage[row+i,col+j]).^2);
                 if sumCurrent <= min
                     min = sumCurrent;
                     SSDrow = row;
