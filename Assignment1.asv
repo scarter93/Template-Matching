@@ -21,14 +21,14 @@ numTemplates = length(templateFileNames);
 
 %% Set the values of SSD_THRESH and NCC_THRESH
 SSD_THRESH = 16000000;
-NCC_THRESH = .15;
+NCC_THRESH = 0;
 %% Initialize two output images to the RGB input image
 [rows cols colorDepth]= size(grayImage);
 matched = zeros(rows, cols);
 position = zeros(13,2);
 names = {['ACE']; ['EIGHT'];['FIVE']; ['FOUR']; ['JACK']; ['KING']; ['NINE']; ['Queen']; ['Seven']; ['SIX']; ['TEN']; ['Three']; ['Two']};
 %% For each template, do the following
-for i=1:numTemplates
+for i=1:1
     %% Load the RGB template image, into variable T 
     T = rgb2gray(imread(templateFileNames(i).name));
     figure
@@ -60,7 +60,7 @@ for i=1:numTemplates
 
     
     %% Find the best match [row column] using Normalized Cross Correlation (NCC)
-    [NCCrow, NCCcol] = NCC(int32(grayImage), int32(T), NCC_THRESH);
+    [NCCrow, NCCcol] = NCC(grayImage, T, NCC_THRESH);
     display([NCCrow, NCCcol]);
     if NCCcol == 0 && NCCrow == 0
         NCCrow = 25*i;
@@ -139,10 +139,8 @@ max = NCC_THRESH;
 for row=1:rows-m+1
     for col=1:cols-n+1
         grayImageSection = grayImage(row:(row+m-1), col:(col+n-1));
-        T_norm = T - mean2(T);
-        grayImage_norm = grayImageSection - mean2(grayImageSection);
-        top = sum(sum(T_norm .* grayImage_norm));
-        bot = sum(sum(T_norm .^2)) * sum(sum(grayImage_norm .^2));
+        top = sum(sum(((T - mean2(T)).*(grayImageSection - mean2(grayImageSection)))));
+        bot = sum(sum(((T - mean2(T)).^2 *(grayImageSection - mean2(grayImageSection)).^2)));
         sumCurrent = top/sqrt(bot);
         if sumCurrent >= max
                     max = sumCurrent;
