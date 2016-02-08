@@ -20,13 +20,13 @@ templateFileNames = dir('Template-*.png');
 numTemplates = length(templateFileNames);
 
 %% Set the values of SSD_THRESH and NCC_THRESH
-SSD_THRESH = 20;
+SSD_THRESH = 200;
 %% Initialize two output images to the RGB input image
 [rows cols colorDepth]= size(grayImage);
 matched = zeros(rows, cols);
 position = zeros(13,2);
 %% For each template, do the following
-for i=1:numTemplates
+for i=1:1
     %% Load the RGB template image, into variable T 
     T = rgb2gray(imread(templateFileNames(i).name));
     figure
@@ -43,8 +43,11 @@ for i=1:numTemplates
     
     %% Find the best match [row column] using Sum of Square Difference (SSD)
     [SSDrow, SSDcol] = SSD(grayImage, T, SSD_THRESH);
-    
-    position(i,:) = [SSDrow + randi(30), SSDcol - randi(30)];
+    display([SSDrow, SSDcol]);
+    position(i,:) = [SSDrow, SSDcol];
+    output = insertText(input,[SSDcol, SSDrow],'ace','FontSize',12,'BoxColor','yellow','BoxOpacity',0.4,'TextColor','white');
+    figure
+    imshow(output);
     % If the best match exists
     % overlay the card name on the best match location on the SSD output image                      
     % Insert the card name on the output images (use small font size, e.g. 6)
@@ -66,6 +69,7 @@ end
 %% Display the output images 
 
 
+
 end
 
 %% Implement the SSD-based template matching here
@@ -79,11 +83,12 @@ function [SSDrow, SSDcol] = SSD(grayImage, T, SSD_THRESH)
 %           SSDcol          column of the best match (empty if unavailable)
 
 [rows cols colorDepth ] = size(grayImage);
+display([rows cols colorDepth]);
 [m n colorDepth ] = size(T);
 sumCurrent = 0;
 min = SSD_THRESH;
-for row=1:rows
-    for col=1:cols
+for row=1:rows-m
+    for col=1:cols-n
         for i=1:m
             for j=1:n
                 sumCurrent = sum(T(i,j) - grayImage(row+i,col+j).^2);
