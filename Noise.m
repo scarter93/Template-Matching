@@ -1,4 +1,4 @@
-function [] = Assignment1(image_name)
+function [] = Noise(image_name)
 %Assignment1 template
 %   image_name       Full path/name of the input image (e.g. 'Test Image (1).JPG')
 
@@ -7,10 +7,9 @@ function [] = Assignment1(image_name)
 input = imread(image_name);
 
 %% Create a gray-scale duplicate into grayImage variable for processing
-grayImage = rgb2gray(input);
-figure
-imshow(grayImage)
-
+var = [0.01,0.03,0.05,0.1,0.3,0.5,0.8,1.0,1.5,2.0]
+result_ssd = zeros(13,10);
+result_ncc = zeros(13,10);
 %% List all the template files starting with 'Template-' ending with '.png'
 % Assuming the images are located in the same directory as this m-file
 % Each template file name is accessible by templateFileNames(i).name
@@ -20,16 +19,18 @@ templateFileNames = dir('Template-*.png');
 numTemplates = length(templateFileNames);
 
 %% Set the values of SSD_THRESH and NCC_THRESH
-SSD_THRESH = 16000000; %can be changed depending on image
-NCC_THRESH = .7; % can be changed depending on images
+SSD_THRESH = intmax; %can be changed depending on image
+NCC_THRESH = intmin; % can be changed depending on images
 %% Initialize two output images to the RGB input image
 
-[rows cols colorDepth]= size(grayImage);
-matched = zeros(rows, cols);
 position = zeros(13,2);
 %use a hardcoded CELL for the names
 names = {['ACE']; ['EIGHT'];['FIVE']; ['FOUR']; ['JACK']; ['KING']; ['NINE']; ['Queen']; ['Seven']; ['SIX']; ['TEN']; ['Three']; ['Two']};
 %% For each template, do the following
+for j=1:10
+grayImage = rgb2gray(imnoise(input,'Gaussian',0,var(j)));
+figure
+imshow(grayImage)
 for i=1:numTemplates
     %% Load the RGB template image, into variable T 
     T = rgb2gray(imread(templateFileNames(i).name));
@@ -49,45 +50,61 @@ for i=1:numTemplates
 
 %% uncomment for SSD/ comment for NCC    
     
-%     [SSDrow, SSDcol] = SSD(int32(grayImage), int32(T), SSD_THRESH);
-%     display([SSDrow, SSDcol]);
-%     if SSDcol == 0 && SSDrow == 0
-%         SSDrow = 25*i;
-%     else
-%         SSDcol = SSDcol + randi(40);
-%         SSDrow = SSDrow + randi(40);
-%     end
-%     position(i,:) = [SSDcol, SSDrow];
+     [SSDrow, SSDcol, SSD_val] = SSD(int32(grayImage), int32(T));
+     display(SSD_val);
+     results_ssd(i,j) = SSD_val;
+%      if SSDcol == 0 && SSDrow == 0
+%          SSDrow = 25*i;
+%      else
+%          SSDcol = SSDcol + randi(40);
+%          SSDrow = SSDrow + randi(40);
+%      end
+     %position(i,:) = [SSDcol, SSDrow];
    
     
     %% Find the best match [row column] using Normalized Cross Correlation (NCC)
 
 %% uncomment for NCC/ comment for SSD    
  
-    [NCCrow, NCCcol] = NCC(int32(grayImage), int32(T), NCC_THRESH);
-    display([NCCrow, NCCcol]);
-    if NCCcol == 0 && NCCrow == 0
-        NCCrow = 25*i;
-    else
-        NCCcol = NCCcol + randi(40);
-        NCCrow = NCCrow + randi(40);
-    end
-    position(i,:) = [NCCcol, NCCrow];
+    [NCCrow, NCCcol, NCC_val] = NCC(int32(grayImage), int32(T));
+    display(NCC_val);
+    results_ncc(i,j) = NCC_val;
+    
+    
+%     if NCCcol == 0 && NCCrow == 0
+%         NCCrow = 25*i;
+%     else
+%         NCCcol = NCCcol + randi(40);
+%         NCCrow = NCCrow + randi(40);
+%     end
+    %position(i,:) = [NCCcol, NCCrow];
 
         
-    
+end    
 end
 
 %% Display the output images 
-output = insertText(input,position,names,'FontSize',12,'BoxColor','yellow','BoxOpacity',0.4,'TextColor','white');
-figure
-imshow(output);
+% output = insertText(input,position,names,'FontSize',12,'BoxColor','yellow','BoxOpacity',0.4,'TextColor','white');
+% figure
+% imshow(output);
+results_ssd
+results_ncc
+results_mean_ssd = zeros(10);
+results_mean_ncc = zeros(10);
+for i=1:10
+    results_mean_ssd(i) = mean(results_ssd(:,i));
+    results_mean_ncc(i) = mean(results_ncc(:,i));
+end
 
+results_mean_ssd
+results_mean_ncc
 
 end
 
+
+
 %% Implement the SSD-based template matching here
-function [SSDrow, SSDcol] = SSD(grayImage, T, SSD_THRESH)
+function [SSDrow, SSDcol, SSD_val] = SSD(grayImage, T)
 % inputs
 %           grayImag        gray-scale image
 %           T               gray-scale template
@@ -103,24 +120,21 @@ display([m n colorDepth]);
 sumCurrent = 0;
 SSDrow = 0;
 SSDcol = 0;
-min = SSD_THRESH;
 for row=1:rows-m+1
     for col=1:cols-n+1
         grayImageSection = grayImage(row:(row+m-1), col:(col+n-1));
         sumCurrent = sum(sum((T - grayImageSection).^2)); 
-        if sumCurrent <= min
-                    min = sumCurrent;
-                    SSDrow = row;
-                    SSDcol = col;
-        end
-        sumCurrent = 0;
+        SSD_val = sumCurrent;
+        SSDrow = row;
+        SSDcol = col;
+        %sumCurrent = 0;
     end
 end
 
 end
 
 %% Implement the NCC-based template matching here
-function [NCCrow, NCCcol] = NCC(grayImage, T, NCC_THRESH)
+function [NCCrow, NCCcol, NCC_val] = NCC(grayImage, T)
 % inputs
 %           grayImag        gray-scale image
 %           T               gray-scale template
@@ -135,7 +149,7 @@ display([m n colorDepth]);
 sumCurrent = 0;
 NCCrow = 0;
 NCCcol = 0;
-max = NCC_THRESH;
+
 for row=1:rows-m+1
     for col=1:cols-n+1
         grayImageSection = grayImage(row:(row+m-1), col:(col+n-1));
@@ -144,12 +158,10 @@ for row=1:rows-m+1
         top = sum(sum(T_norm .* grayImage_norm));
         bot = sum(sum(T_norm .^2)) * sum(sum(grayImage_norm .^2));
         sumCurrent = top/sqrt(bot);
-        if sumCurrent >= max
-                    max = sumCurrent;
-                    NCCrow = row;
-                    NCCcol = col;
-        end
-        sumCurrent = 0;
+        NCC_val = sumCurrent;
+        NCCrow = row;
+        NCCcol = col;
+        %sumCurrent = 0;
     end
 end
 
