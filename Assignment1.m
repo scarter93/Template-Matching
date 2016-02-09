@@ -21,7 +21,7 @@ numTemplates = length(templateFileNames);
 
 %% Set the values of SSD_THRESH and NCC_THRESH
 SSD_THRESH = 16000000;
-NCC_THRESH = .15;
+NCC_THRESH = .65;
 %% Initialize two output images to the RGB input image
 [rows cols colorDepth]= size(grayImage);
 matched = zeros(rows, cols);
