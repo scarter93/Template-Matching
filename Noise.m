@@ -89,8 +89,8 @@ end
 % imshow(output);
 results_ssd
 results_ncc
-results_mean_ssd = zeros(10);
-results_mean_ncc = zeros(10);
+results_mean_ssd = zeros(10,1);
+results_mean_ncc = zeros(10,1);
 for i=1:10
     results_mean_ssd(i) = mean(results_ssd(:,i));
     results_mean_ncc(i) = mean(results_ncc(:,i));
@@ -120,17 +120,20 @@ display([m n colorDepth]);
 sumCurrent = 0;
 SSDrow = 0;
 SSDcol = 0;
+min = intmax;
 for row=1:rows-m+1
     for col=1:cols-n+1
         grayImageSection = grayImage(row:(row+m-1), col:(col+n-1));
         sumCurrent = sum(sum((T - grayImageSection).^2)); 
-        SSD_val = sumCurrent;
-        SSDrow = row;
-        SSDcol = col;
+        if sumCurrent <= min
+                    min = sumCurrent;
+                    SSDrow = row;
+                    SSDcol = col;
+        end
         %sumCurrent = 0;
     end
 end
-
+SSD_val = min;
 end
 
 %% Implement the NCC-based template matching here
@@ -149,7 +152,7 @@ display([m n colorDepth]);
 sumCurrent = 0;
 NCCrow = 0;
 NCCcol = 0;
-
+max = intmin;
 for row=1:rows-m+1
     for col=1:cols-n+1
         grayImageSection = grayImage(row:(row+m-1), col:(col+n-1));
@@ -158,12 +161,14 @@ for row=1:rows-m+1
         top = sum(sum(T_norm .* grayImage_norm));
         bot = sum(sum(T_norm .^2)) * sum(sum(grayImage_norm .^2));
         sumCurrent = top/sqrt(bot);
-        NCC_val = sumCurrent;
-        NCCrow = row;
-        NCCcol = col;
-        %sumCurrent = 0;
+        if sumCurrent >= max
+                max = sumCurrent;
+                NCCrow = row;
+                NCCcol = col;
+        end
     end
 end
+NCC_val = max;
 
 end
 
