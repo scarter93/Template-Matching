@@ -27,8 +27,8 @@ position = zeros(13,2);
 %use a hardcoded CELL for the names
 names = {['ACE']; ['EIGHT'];['FIVE']; ['FOUR']; ['JACK']; ['KING']; ['NINE']; ['Queen']; ['Seven']; ['SIX']; ['TEN']; ['Three']; ['Two']};
 %% For each template, do the following
-for j=1:10
-grayImage = rgb2gray(imnoise(input,'Gaussian',0,var(j)));
+for j=1:1
+grayImage = rgb2gray(imnoise(input,'Gaussian',0,1.5));
 figure
 imshow(grayImage)
 for i=1:numTemplates
@@ -59,16 +59,16 @@ for i=1:numTemplates
 %          SSDcol = SSDcol + randi(40);
 %          SSDrow = SSDrow + randi(40);
 %      end
-     %position(i,:) = [SSDcol, SSDrow];
+     position(i,:) = [SSDcol, SSDrow];
    
     
     %% Find the best match [row column] using Normalized Cross Correlation (NCC)
 
 %% uncomment for NCC/ comment for SSD    
  
-    [NCCrow, NCCcol, NCC_val] = NCC(int32(grayImage), int32(T));
-    display(NCC_val);
-    results_ncc(i,j) = NCC_val;
+%     [NCCrow, NCCcol, NCC_val] = NCC(int32(grayImage), int32(T));
+%     display(NCC_val);
+%     results_ncc(i,j) = NCC_val;
     
     
 %     if NCCcol == 0 && NCCrow == 0
@@ -77,16 +77,16 @@ for i=1:numTemplates
 %         NCCcol = NCCcol + randi(40);
 %         NCCrow = NCCrow + randi(40);
 %     end
-    %position(i,:) = [NCCcol, NCCrow];
+%     position(i,:) = [NCCcol, NCCrow];
 
         
 end    
 end
 
 %% Display the output images 
-% output = insertText(input,position,names,'FontSize',12,'BoxColor','yellow','BoxOpacity',0.4,'TextColor','white');
-% figure
-% imshow(output);
+ output = insertText(input,position,names,'FontSize',12,'BoxColor','yellow','BoxOpacity',0.4,'TextColor','white');
+ figure
+ imshow(output);
 results_ssd
 results_ncc
 results_mean_ssd = zeros(10,1);

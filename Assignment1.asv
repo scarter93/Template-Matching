@@ -164,7 +164,7 @@ for row=1:rows-m+1
     for col=1:cols-n+1
         %create image section
         grayImageSection = grayImage(row:(row+m-1), col:(col+n-1));
-        %create normalized values (easier for later calc)
+        %create normalized values (easier for later calc
         T_norm = T - mean2(T);
         grayImage_norm = grayImageSection - mean2(grayImageSection);
         %compute both fractions
@@ -197,27 +197,19 @@ function [NCCrow, NCCcol] = NCC(grayImage, T, NCC_THRESH)
 %get image size information
 [rows cols colorDepth ] = size(grayImage);
 [m n colorDepth ] = size(T);
-
-%init values
+%calculka
 sumCurrent = 0;
 NCCrow = 0;
 NCCcol = 0;
 max = NCC_THRESH;
-
-%start loops
 for row=1:rows-m+1
     for col=1:cols-n+1
-        %create image section
         grayImageSection = grayImage(row:(row+m-1), col:(col+n-1));
-        %create normalized values (easier for later calc)
         T_norm = T - mean2(T);
         grayImage_norm = grayImageSection - mean2(grayImageSection);
-        %compute both top and bottom
         top = sum(sum(T_norm .* grayImage_norm));
         bot = sum(sum(T_norm .^2)) * sum(sum(grayImage_norm .^2));
-        %perform calculations 
         sumCurrent = top/sqrt(bot);
-        %only take suitable values
         if sumCurrent >= max
                     max = sumCurrent;
                     NCCrow = row;
